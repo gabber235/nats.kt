@@ -11,26 +11,26 @@
 
 ## ✨ Why NATS.kt?
 
-- **🌐 Universal Platform Support**: Deploy your NATS-powered applications anywhere Kotlin runs
-- **🏗️ Transport Flexibility**: TCP and WebSocket transports supported 
-- **🤝 Coroutines**: Coroutine-based API for idiomatic reactive programming
-- **🔧 Developer-First**: Clean, idiomatic Kotlin API with DSL configuration
-- **⚡ Built on Ktor**: Leverage Ktor's stability for networking capabilities and performance
+- **Universal Platform Support**: Deploy your NATS-powered applications anywhere Kotlin runs
+- **Transport Flexibility**: TCP and WebSocket transports supported 
+- **Coroutines**: Coroutine-based API for idiomatic reactive programming
+- **DSL-style usage**: Clean, idiomatic Kotlin API with DSL configuration
+- **Built on Ktor**: Leverage Ktor's stability for networking capabilities and performance
 
 ## 🎯 Supported Platforms
 
 | Platform | Status |
 |----------|--------|
-| JVM | ✅ Full Support |
-| Android | ✅ Full Support |
-| iOS (ARM64) | ✅ Full Support |
-| iOS Simulator (ARM64) | ✅ Full Support |
-| macOS (ARM64) | ✅ Full Support |
-| Linux (x64) | ✅ Full Support |
-| Linux (ARM64) | ✅ Full Support |
-| JavaScript (Browser) | ✅ Full Support |
-| JavaScript (Node.js) | ✅ Full Support |
-| WebAssembly | ✅ Full Support |
+| JVM | Full Support |
+| Android | Full Support |
+| iOS (ARM64) | Full Support |
+| iOS Simulator (ARM64) | Full Support |
+| macOS (ARM64) | Full Support |
+| Linux (x64) | Full Support |
+| Linux (ARM64) | Full Support |
+| JavaScript (Browser) | Full Support |
+| JavaScript (Node.js) | Full Support |
+| WasmJS | Full Support |
 
 **Minimum JVM**: 17
 
