@@ -9,7 +9,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.core.common)
+                implementation(projects.natsktCoreCommon)
                 implementation(libs.whyoleg.secureRandom)
                 implementation(libs.kotlinx.coroutines.core)
 

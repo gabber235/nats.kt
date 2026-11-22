@@ -1,7 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
     alias(libs.plugins.natskt.kmp)
     alias(libs.plugins.kotlin.serialization)
@@ -11,32 +7,6 @@ kotlin {
     explicitApi()
     applyDefaultHierarchyTemplate()
     allTargets()
-
-    js {
-        browser {
-			testTask {
-				useKarma {
-					useChromeHeadlessNoSandbox()
-				}
-			}
-		}
-        nodejs {
-			testTask {
-				useMocha {
-					timeout = "15000"
-				}
-			}
-		}
-    }
-    wasmJs {
-		nodejs {
-			testTask {
-				useMocha {
-					timeout = "15000"
-				}
-			}
-		}
-    }
 
     sourceSets {
         val commonMain by getting
@@ -51,15 +21,13 @@ kotlin {
 
         jvmMain { dependsOn(nativeAndJvmSharedMain) }
         jvmTest { dependsOn(nativeAndJvmSharedTest) }
-        nativeMain { dependsOn(nativeAndJvmSharedMain) }
-        nativeTest { dependsOn(nativeAndJvmSharedTest) }
 
         commonMain.dependencies {
-            api(projects.core.common)
-            api(projects.core.transportWs)
-            api(projects.nuid)
-            implementation(projects.internal)
-            implementation(projects.nkeys)
+            api(projects.natsktCoreCommon)
+            api(projects.natsktTransportWs)
+            api(projects.natsktNuid)
+            implementation(projects.natsktInternal)
+            implementation(projects.natsktNkeys)
 
             implementation(libs.whyoleg.secureRandom)
             implementation(libs.kotlinx.coroutines.core)
@@ -72,15 +40,7 @@ kotlin {
         }
 
         nativeAndJvmSharedMain.dependencies {
-            api(projects.core.transportTcp)
-        }
-
-        jsMain.dependencies {
-            implementation(libs.ktor.client.engine.js)
-        }
-
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.engine.js)
+            api(projects.natsktTransportTcp)
         }
 
 		/* Tests */
@@ -88,7 +48,7 @@ kotlin {
 		commonTest.dependencies {
 			implementation(kotlin("test"))
 			implementation(projects.testHarness)
-			implementation(projects.crypto)
+			implementation(projects.natsktCrypto)
 			implementation(libs.kotlinx.coroutines.core)
 			implementation(libs.kotlinx.coroutines.test)
 			implementation(libs.turbine)
@@ -96,27 +56,9 @@ kotlin {
 			implementation(libs.whyoleg.cryptography.core)
 		}
 
-		appleTest.dependencies {
-			implementation(libs.ktor.client.engine.darwin)
-		}
-
 		jvmTest.dependencies {
 			implementation(libs.ktor.client.engine.java)
 			implementation(libs.ktor.client.engine.okhttp)
-		}
-
-		macosTest.dependencies {
-			implementation(libs.ktor.client.engine.curl)
-		}
-
-		linuxTest.dependencies {
-			implementation(libs.ktor.client.engine.curl)
-		}
-
-		nativeTest.dependencies {
-			implementation(projects.nativeTls)
-			implementation(libs.nativebuilds.openssl.libssl)
-			implementation(libs.nativebuilds.openssl.libcrypto)
 		}
     }
 }

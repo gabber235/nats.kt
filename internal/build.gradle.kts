@@ -12,7 +12,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-				api(projects.core.common)
+				api(projects.natsktCoreCommon)
 
 				api(libs.kotlinLogging)
                 implementation(libs.kotlinx.coroutines.core)

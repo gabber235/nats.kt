@@ -20,20 +20,29 @@ dependencyResolutionManagement {
 }
 
 include("architecture")
-include("core")
-include("core:common")
-include("core:transport-tcp")
-include("core:transport-ws")
-include("crypto")
-include("crypto-headless")
 include("integration-tests")
-include("internal")
-include("jetstream")
-include("native-tls")
-include("native-tls-spi")
-include("nkeys")
-include("nuid")
-include("platform")
 include("test-harness")
 include("test-harness:nats-server-daemon")
 include("test-harness:tls-test-server")
+
+/*
+ * Library projects are named after their published artifactId. Gradle source dependencies
+ * substitute an external module by the project's group and name, not by the publication
+ * coordinates, so `io.github.n-hass:natskt-core` resolves to the project named natskt-core.
+ */
+fun includeLibrary(artifactId: String, directory: String) {
+	include(artifactId)
+	project(":$artifactId").projectDir = file(directory)
+}
+
+includeLibrary("natskt-core", "core")
+includeLibrary("natskt-core-common", "core/common")
+includeLibrary("natskt-transport-tcp", "core/transport-tcp")
+includeLibrary("natskt-transport-ws", "core/transport-ws")
+includeLibrary("natskt-crypto", "crypto")
+includeLibrary("natskt-crypto-headless", "crypto-headless")
+includeLibrary("natskt-internal", "internal")
+includeLibrary("natskt-jetstream", "jetstream")
+includeLibrary("natskt-nkeys", "nkeys")
+includeLibrary("natskt-nuid", "nuid")
+includeLibrary("natskt-platform", "platform")

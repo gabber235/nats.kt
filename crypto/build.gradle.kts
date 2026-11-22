@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.utils.toSetOrEmpty
-
 plugins {
 	alias(libs.plugins.natskt.kmp)
 }
@@ -11,10 +9,7 @@ kotlin {
 	sourceSets {
 		commonMain.dependencies {
 			implementation(libs.whyoleg.cryptography.core)
-			api(projects.cryptoHeadless)
-		}
-		linuxMain.dependencies {
-			api(libs.whyoleg.cryptography.provider.openssl3.prebuilt.nativebuilds)
+			api(projects.natsktCryptoHeadless)
 		}
 	}
 }

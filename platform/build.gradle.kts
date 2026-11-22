@@ -8,9 +8,9 @@ kotlin {
 
 	sourceSets {
 		commonMain.dependencies {
-			api(projects.core)
-			api(projects.jetstream)
-			implementation(projects.crypto)
+			api(projects.natsktCore)
+			api(projects.natsktJetstream)
+			implementation(projects.natsktCrypto)
 		}
 	}
 }

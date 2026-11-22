@@ -1,7 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
 }
@@ -11,28 +7,12 @@ kotlin {
 
     jvm()
 
-    js {
-        nodejs()
-    }
-
-    wasmJs {
-        nodejs()
-    }
-
-    iosArm64()
-    iosSimulatorArm64()
-
-    linuxX64()
-    linuxArm64()
-
-    macosArm64()
-
     applyDefaultHierarchyTemplate()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.core.common)
+                implementation(projects.natsktCoreCommon)
                 implementation(libs.whyoleg.secureRandom)
                 implementation(libs.kotlinx.coroutines.core)
 
@@ -40,10 +20,6 @@ kotlin {
                 implementation(libs.ktor.network)
                 implementation(libs.ktor.network.tls)
             }
-        }
-
-        nativeMain.dependencies {
-            implementation(projects.nativeTlsSpi)
         }
     }
 }

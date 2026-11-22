@@ -1,8 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import java.time.Duration
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
 	alias(libs.plugins.natskt.kmp)
 	alias(libs.plugins.kotlin.serialization)
@@ -12,48 +7,11 @@ kotlin {
     explicitApi()
     allTargets()
 
-    js {
-        browser {
-			testTask {
-				useKarma {
-					useChromeHeadless()
-					useConfigDirectory(karmaConfigDir)
-				}
-				timeout = Duration.ofSeconds(90)
-			}
-		}
-        nodejs {
-			testTask {
-				useMocha {
-					timeout = "90000"
-				}
-			}
-		}
-    }
-
-    wasmJs {
-        browser {
-			testTask {
-				useKarma {
-					useChromeHeadless()
-					useConfigDirectory(karmaConfigDir)
-				}
-				timeout = Duration.ofSeconds(90)
-			}
-		}
-        nodejs {
-			testTask {
-				useKarma()
-				timeout = Duration.ofSeconds(90)
-			}
-		}
-    }
-
     sourceSets {
         commonMain.dependencies {
-			implementation(projects.core)
-			implementation(projects.core.common)
-			implementation(projects.internal)
+			implementation(projects.natsktCore)
+			implementation(projects.natsktCoreCommon)
+			implementation(projects.natsktInternal)
 			implementation(libs.whyoleg.cryptography.core)
 			implementation(libs.kotlinx.coroutines.core)
 			implementation(libs.kotlinx.serialization.core)
@@ -67,7 +25,7 @@ kotlin {
 			implementation(libs.kotest.assertions.core)
 			implementation(libs.turbine)
 			implementation(projects.testHarness)
-			implementation(projects.crypto)
+			implementation(projects.natsktCrypto)
 		}
 
 		jvmTest.dependencies {
@@ -87,22 +45,3 @@ mavenPublishing {
 		description = "JetStream extensions from NATS.kt core"
 	}
 }
-
-val karmaMochaTimeoutMs = 20_000L
-val karmaConfigDir =
-	layout.buildDirectory
-		.dir("karma.config.d")
-		.get()
-		.asFile
-		.apply {
-			mkdirs()
-			resolve("mocha-timeout.js").writeText(
-				"""
-				config.set({
-					client: Object.assign({}, config.client || {}, {
-						mocha: { timeout: $karmaMochaTimeoutMs }
-					})
-				});
-				""".trimIndent(),
-			)
-		}

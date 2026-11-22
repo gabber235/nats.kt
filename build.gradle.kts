@@ -136,14 +136,13 @@ subprojects {
 // API reference (Dokka) — aggregated HTML for all published, public modules.
 // Output lands under docs/api so MkDocs serves it as part of the site.
 dependencies {
-	dokka(projects.core)
-	dokka(projects.core.common)
-	dokka(projects.core.transportTcp)
-	dokka(projects.core.transportWs)
-	dokka(projects.jetstream)
-	dokka(projects.nativeTls)
-	dokka(projects.nkeys)
-	dokka(projects.nuid)
+	dokka(projects.natsktCore)
+	dokka(projects.natsktCoreCommon)
+	dokka(projects.natsktTransportTcp)
+	dokka(projects.natsktTransportWs)
+	dokka(projects.natsktJetstream)
+	dokka(projects.natsktNkeys)
+	dokka(projects.natsktNuid)
 }
 
 dokka {

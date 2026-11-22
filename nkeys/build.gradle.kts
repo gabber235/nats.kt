@@ -11,19 +11,10 @@ kotlin {
 			implementation(libs.whyoleg.cryptography.core)
 		}
 
-		wasmJsMain.dependencies {
-			// YouTrack KT-87116
-			implementation(libs.kotlinx.io.core)
-		}
-
         commonTest.dependencies {
 			implementation(kotlin("test"))
 			implementation(libs.kotlinx.coroutines.test)
-			implementation(projects.crypto)
-		}
-
-		nativeTest.dependencies {
-			implementation(libs.nativebuilds.openssl.libcrypto)
+			implementation(projects.natsktCrypto)
 		}
 
 		jvmTest.dependencies {
