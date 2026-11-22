@@ -10,6 +10,10 @@ kotlin {
         commonMain.dependencies {
 			implementation(libs.whyoleg.secureRandom)
 		}
+
+		jvmTest.dependencies {
+			implementation(kotlin("test"))
+		}
     }
 }
 

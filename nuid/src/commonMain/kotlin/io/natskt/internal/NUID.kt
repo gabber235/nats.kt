@@ -1,7 +1,8 @@
 package io.natskt.internal
 
 import dev.whyoleg.cryptography.random.CryptographyRandom
-import kotlin.properties.Delegates
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 private val DIGITS = ('0'..'9') + ('A'..'Z') + ('a'..'z')
 
@@ -14,63 +15,75 @@ private const val MIN_INC = 33L
 private const val MAX_INC = 333L
 private const val TOTAL_LEN = PRE_LEN + SEQ_LEN
 
+/**
+ * Generates unique identifiers for inboxes and consumer names.
+ *
+ * Safe to share between threads: every client in a process uses [Default], so each call
+ * advances one immutable snapshot of prefix, sequence and increment with a compare and set,
+ * and no two calls can observe the same sequence.
+ */
+@OptIn(ExperimentalAtomicApi::class)
 public open class NUID {
 	public companion object Default : NUID()
 
-	public val pre: CharArray = CharArray(PRE_LEN)
-	public var seq: Long by Delegates.notNull()
-	public var inc: Long by Delegates.notNull()
+	private class State(
+		val pre: CharArray,
+		val seq: Long,
+		val inc: Long,
+	)
 
-	init {
-		resetSequential()
-		randomizePrefix()
-	}
+	private val state = AtomicReference(randomState())
+
+	public val pre: CharArray get() = state.load().pre.copyOf()
+	public val seq: Long get() = state.load().seq
+	public val inc: Long get() = state.load().inc
 
 	public fun next(): String {
-		seq += inc
-		if (seq >= MAX_SEQ) {
-			randomizePrefix()
-			resetSequential()
-		}
-
+		val current = advance()
 		val b = CharArray(TOTAL_LEN)
-		pre.copyInto(b, 0, 0, PRE_LEN)
-
-		var l = seq
-		for (i in b.lastIndex downTo PRE_LEN) {
-			b[i] = DIGITS[(l % BASE).toInt()]
-			l /= BASE
-		}
-
+		current.pre.copyInto(b, 0, 0, PRE_LEN)
+		writeSequence(current.seq, b)
 		return b.concatToString()
 	}
 
 	public fun nextSequence(): String {
-		seq += inc
-		if (seq >= MAX_SEQ) {
-			randomizePrefix()
-			resetSequential()
-		}
-
 		val b = CharArray(SEQ_LEN)
-		var l = seq
-		for (i in b.lastIndex downTo 0) {
-			b[i] = DIGITS[(l % BASE).toInt()]
-			l /= BASE
-		}
-
+		writeSequence(advance().seq, b)
 		return b.concatToString()
 	}
 
-	private fun resetSequential() {
-		seq = CryptographyRandom.nextLong(MAX_SEQ)
-		inc = CryptographyRandom.nextLong(MIN_INC, MAX_INC)
+	private fun advance(): State {
+		while (true) {
+			val current = state.load()
+			val seq = current.seq + current.inc
+			val next = if (seq >= MAX_SEQ) randomState() else State(current.pre, seq, current.inc)
+			if (state.compareAndSet(current, next)) return next
+		}
 	}
 
-	private fun randomizePrefix() {
+	private fun writeSequence(
+		seq: Long,
+		into: CharArray,
+	) {
+		var l = seq
+		for (i in into.lastIndex downTo into.size - SEQ_LEN) {
+			into[i] = DIGITS[(l % BASE).toInt()]
+			l /= BASE
+		}
+	}
+
+	private fun randomState(): State {
 		val bytes = CryptographyRandom.nextBytes(PRE_LEN)
-		for (i in pre.indices) pre[i] = DIGITS[(bytes[i].toInt() and 0xFF) % BASE]
+		val pre = CharArray(PRE_LEN) { DIGITS[(bytes[it].toInt() and 0xFF) % BASE] }
+		return State(
+			pre = pre,
+			seq = CryptographyRandom.nextLong(MAX_SEQ),
+			inc = CryptographyRandom.nextLong(MIN_INC, MAX_INC),
+		)
 	}
 
-	override fun toString(): String = "NUID(seq=$seq, inc=$inc)"
+	override fun toString(): String {
+		val current = state.load()
+		return "NUID(seq=${current.seq}, inc=${current.inc})"
+	}
 }
