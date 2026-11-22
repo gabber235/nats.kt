@@ -9,10 +9,6 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.net.URI
 
 plugins {
-    // kotlin.multiplatform is declared here so its types are on root's buildscript
-    // classpath (used by the `subprojects { … }` block below). Subprojects apply it via
-    // the `natskt.kmp` convention plugin in build-logic, not directly.
-    alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.spotless) apply false
 	alias(libs.plugins.mavenPublish) apply false
 	alias(libs.plugins.dokka)

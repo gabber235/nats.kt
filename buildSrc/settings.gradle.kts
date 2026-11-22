@@ -1,5 +1,4 @@
-rootProject.name = "build-logic"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+rootProject.name = "buildSrc"
 
 dependencyResolutionManagement {
 	repositories {
@@ -12,5 +11,3 @@ dependencyResolutionManagement {
 		}
 	}
 }
-
-include(":convention")
