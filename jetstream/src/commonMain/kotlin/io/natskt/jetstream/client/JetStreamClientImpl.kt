@@ -86,33 +86,21 @@ internal class JetStreamClientImpl(
 				if (headers != null) it + headers else it
 			}
 
-		var lastError: Exception? = null
-		var apiError: ApiError? = null
-		val retryAttempts = publishOptions.retryAttempts
-		val retryWait = publishOptions.retryWait
-
-		for (attempt in 0..retryAttempts) {
-			try {
-				when (val data = client.request(subject, message, msgHeaders).decode<PublishAck>()) {
-					is PublishAck -> return data
-					is ApiError -> {
-						apiError = data
-						delay(retryWait)
-					}
-					else -> {
-						delay(retryWait)
-					}
+		// Only a "no responders" answer (status 503, no body) means no stream took the message, so only that one is
+		// sent again, as nats.go and jnats do. Any other error is the stream's verdict, such as a wrong last sequence, and
+		// a request that timed out or was cancelled may have landed: sending it again would turn a landed conditional
+		// publish into a wrong last sequence error and a plain one into a duplicate. Both propagate unchanged.
+		for (attempt in 0..publishOptions.retryAttempts) {
+			when (val data = client.request(subject, message, msgHeaders).decode<PublishAck>()) {
+				is PublishAck -> return data
+				is ApiError -> {
+					if (data.code != NO_RESPONDERS_STATUS || attempt == publishOptions.retryAttempts) throw JetStreamApiException(data)
+					delay(publishOptions.retryWait)
 				}
-			} catch (e: Exception) {
-				lastError = e
+				else -> throw JetStreamException("Unexpected reply to a publish: $data")
 			}
 		}
-
-		if (apiError != null) {
-			throw JetStreamApiException(apiError)
-		} else {
-			throw JetStreamException("Failed to publish message", lastError)
-		}
+		error("A publish makes at least one attempt")
 	}
 
 	override suspend fun publish(
@@ -205,4 +193,9 @@ internal class JetStreamClientImpl(
 		headers: Map<String, List<String>>?,
 		timeoutMs: Long,
 	): Message = client.request(subject, message?.encodeToByteArray(), headers, timeoutMs)
+
+	private companion object {
+		/** The status of a request no subscriber answered, here a publish to a subject no stream listens on. */
+		const val NO_RESPONDERS_STATUS = 503
+	}
 }
