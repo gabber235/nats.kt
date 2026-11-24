@@ -229,6 +229,6 @@ docs/api/
 local.properties
 .pre-commit-config.yaml
 
-**/gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
 
 AGENTS.md
